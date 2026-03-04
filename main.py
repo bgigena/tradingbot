@@ -13,8 +13,8 @@ load_dotenv()
 # ==========================================
 # ⚙️ CONFIGURACIÓN GENERAL
 # ==========================================
-TELEGRAM_TOKEN  = os.getenv("TELEGRAM_TOKEN",  "8263520731:AAGMctdNPUpkfjn3ClcviZao8DBGauHvTt8")
-TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "920468935")
+TELEGRAM_TOKEN  = os.getenv("TELEGRAM_TOKEN")
+TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 MT5_PATH        = os.getenv("MT5_PATH", r"C:\Program Files\MetaTrader 5\terminal64.exe")
 
 SYMBOLS          = ["EURUSD", "GBPUSD", "USDJPY", "AUDUSD", "NZDUSD", "USDCAD"]
