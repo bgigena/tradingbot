@@ -1,0 +1,12 @@
+version: "3.9"
+
+services:
+  tradingbot:
+    build: .
+    container_name: ctrader-bot
+    restart: unless-stopped
+    env_file:
+      - .env
+    # Montamos el .env para que el bot pueda guardar el refresh_token
+    volumes:
+      - ./.env:/app/.env

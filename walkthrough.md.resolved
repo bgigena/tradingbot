@@ -1,0 +1,62 @@
+# Migración de Trading Bot a cTrader (Docker)
+
+## Estado Actual ⏸️
+El proyecto se encuentra **pausado** esperando que Spotware apruebe la aplicación creada en el portal de cTrader Open API (hasta 3 días hábiles).
+
+Hasta el momento, **se ha creado toda la infraestructura del bot**. El bot ya no depende de la aplicación MetaTrader 5 y está preparado para correr de fondo como un servicio de Docker.
+
+## Cambios Realizados
+
+1. **Configuración y Estructura Base:**
+   - Se migró el entorno para prescindir de la librería `MetaTrader5`.
+   - Se crearon los [Dockerfile](file:///d:/TradingBot/Dockerfile) y [docker-compose.yml](file:///d:/TradingBot/docker-compose.yml) para correr el bot aisalado.
+
+2. **Librería Cliente cTrader:**
+   - Se instaló la librería oficial `ctrader-open-api` (Spotware).
+   - Debido a que cTrader requiere de una conexión constante al socket, se empleó la arquitectura basada en el *Event Loop* asíncrono `Twisted` (el backend de la librería).
+   - Se creó [bot/client.py](file:///d:/TradingBot/bot/client.py) que administra la conexión TCP-TLS, pide la lista de cuentas usando el token y comienza a ejecutar el script principal ([_tick](file:///d:/TradingBot/bot/client.py#78-84)) cada 30 segundos.
+
+3. **Módulo de Autenticación ([bot/auth.py](file:///d:/TradingBot/bot/auth.py) y [setup_auth.py](file:///d:/TradingBot/setup_auth.py)):**
+   - El ecosistema cTrader usa OAuth2.
+   - [setup_auth.py](file:///d:/TradingBot/setup_auth.py): Un script interactivo de una sola vez para que el usuario obtenga su *Refresh Token* mediante el navegador.
+   - [bot/auth.py](file:///d:/TradingBot/bot/auth.py): Administra el refresco automático de tokens. Lee el *Refresh Token* de tu archivo [.env](file:///d:/TradingBot/.env), obtiene a cTrader un nuevo *Access Token*, actualiza las variables de entorno, y con este token nuevo autentica el cliente.
+
+4. **Entorno de Ejecución ([main_ctrader.py](file:///d:/TradingBot/main_ctrader.py)):**
+   - El punto de entrada coordina el módulo de autenticación con el de conexión, arrancando la arquitectura Twisted y manejando terminaciones seguras.
+
+---
+
+## Próximos Pasos (cuando la App de cTrader sea aprobada)
+
+Cuando Spotware te habilite la aplicación, vas a poder conseguir tus claves. Para retomar, seguí estos pasos:
+
+### 1. Obtener las credenciales iniciales
+En la PC donde vas a correr el bot:
+1. Asegurate que tu [.env](file:///d:/TradingBot/.env) tenga el formato correcto con tus tokens de Telegram.
+2. Ejecutá en la terminal (fuera de docker):
+   ```bash
+   python setup_auth.py
+   ```
+3. Pegá el **Client ID** y **Client Secret** que te dio cTrader.
+4. El script te va a dar un link largo. Abrilo en Chrome, logueate con tu cuenta cTID de IC Markets y aprobá los permisos.
+5. Chrome va a intentar ir a `http://localhost/?code=XXX`. Esa página va a dar error (es normal). Copiá el código de la URL que le sigue al `code=` y pegalo en la terminal del bot.
+
+Si todo sale bien, la terminal va a decir `✅ Autenticación Exitosa!` y tu archivo [.env](file:///d:/TradingBot/.env) se va a haber llenado automáticamente con las claves para auto-renovarse de ahora en más.
+
+### 2. Implementar la Lógica de Trading (Para el asistente AI)
+Una vez que logres conectar (o si querés que lo hagamos durante tu próxima sesión), restan implementar:
+
+- **En [bot/client.py](file:///d:/TradingBot/bot/client.py)**:
+  Definir los métodos para obtener las velas OHLC (`ProtoOAGetTrendbarsReq`) y para mandar órdenes a mercado (`ProtoOANewOrderReq`).
+
+- **En [bot/strategy.py](file:///d:/TradingBot/bot/strategy.py)**:
+  Tomaremos la lógica pre-existente de M15 (RSI) y H1 (SMA200) del archivo original [main.py](file:///d:/TradingBot/main.py) y la pasaremos a usar los dataframes alimentados por la nueva API.
+
+- **En `bot/risk.py`**:
+  Calcularemos el trailing stop, breakevens, chequeo de equidad y tamaño adaptativo de lote en base a la info que nos da cTrader (`ProtoOAAccountAuthRes`).
+
+### 3. Ejecución
+Finalmente, una vez que el código esté listo y probado en la cuenta Demo, se encenderá defintivamente con:
+```bash
+docker-compose up -d
+```
