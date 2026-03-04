@@ -7,36 +7,35 @@ import os
 from datetime import datetime, timedelta, timezone
 from dotenv import load_dotenv
 
-# Cargamos variables de entorno
-load_dotenv()
-
 # ==========================================
-# ⚙️ CONFIGURACIÓN GENERAL
+# ⚙️ CONFIGURACIÓN GENERAL (vía Pydantic settings)
 # ==========================================
-TELEGRAM_TOKEN  = os.getenv("TELEGRAM_TOKEN")
-TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
-MT5_PATH        = os.getenv("MT5_PATH", r"C:\Program Files\MetaTrader 5\terminal64.exe")
+from src.utils.settings import telegram_settings, trading_settings, session_settings, integration_settings
 
-SYMBOLS          = ["EURUSD", "GBPUSD", "USDJPY", "AUDUSD", "NZDUSD", "USDCAD"]
-RISK_PERCENT     = float(os.getenv("RISK_PERCENT",    "0.01"))
-REWARD_RATIO     = int(os.getenv("REWARD_RATIO",      "3"))
-MAGIC_NUMBER     = int(os.getenv("MAGIC_NUMBER",      "987654"))
-EQUITY_PROTECTION = float(os.getenv("EQUITY_PROTECTION", "0.80"))
+TELEGRAM_TOKEN    = telegram_settings.TELEGRAM_TOKEN
+TELEGRAM_CHAT_ID  = telegram_settings.TELEGRAM_CHAT_ID
+MT5_PATH          = integration_settings.MT5_PATH
+
+SYMBOLS           = trading_settings.SYMBOLS
+RISK_PERCENT      = trading_settings.RISK_PERCENT
+REWARD_RATIO      = trading_settings.REWARD_RATIO
+MAGIC_NUMBER      = trading_settings.MAGIC_NUMBER
+EQUITY_PROTECTION = trading_settings.EQUITY_PROTECTION
 
 # --- Filtro de sesión (hora UTC) ---
-SESSION_START_UTC = 7   # Apertura Londres
-SESSION_END_UTC   = 20  # Cierre Nueva York
+SESSION_START_UTC = session_settings.SESSION_START_UTC
+SESSION_END_UTC   = session_settings.SESSION_END_UTC
 
 # --- Filtro de spread máximo (en pips) ---
-MAX_SPREAD_PIPS = 3.0
+MAX_SPREAD_PIPS   = trading_settings.MAX_SPREAD_PIPS
 
 # --- ATR para SL dinámico ---
-ATR_MULTIPLIER = 1.5    # SL = ATR * multiplicador
-ATR_PERIOD     = 14
+ATR_MULTIPLIER    = trading_settings.ATR_MULTIPLIER
+ATR_PERIOD        = trading_settings.ATR_PERIOD
 
 # --- Breakeven / Trailing ---
-BREAKEVEN_TRIGGER_R = 1.0  # Mueve SL a BE cuando el precio avanza 1R
-TRAILING_STEP_PIPS  = 10   # Pasos del trailing stop en pips
+BREAKEVEN_TRIGGER_R = trading_settings.BREAKEVEN_TRIGGER_R
+TRAILING_STEP_PIPS  = trading_settings.TRAILING_STEP_PIPS
 
 # Memoria para no repetir notificaciones de Telegram
 notified_deals = set()

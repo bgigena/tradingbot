@@ -1,16 +1,16 @@
 import os
 import requests
-from dotenv import load_dotenv, set_key
+from dotenv import set_key
+from src.utils.settings import integration_settings
 
 class CTraderAuth:
     def __init__(self):
         self.env_path = os.path.join(os.getcwd(), ".env")
-        load_dotenv(self.env_path)
         
-        self.client_id = os.getenv("CTRADER_CLIENT_ID")
-        self.client_secret = os.getenv("CTRADER_CLIENT_SECRET")
-        self.refresh_token = os.getenv("CTRADER_REFRESH_TOKEN")
-        self.access_token = os.getenv("CTRADER_ACCESS_TOKEN")
+        self.client_id = integration_settings.CTRADER_CLIENT_ID
+        self.client_secret = integration_settings.CTRADER_CLIENT_SECRET
+        self.refresh_token = integration_settings.CTRADER_REFRESH_TOKEN
+        self.access_token = integration_settings.CTRADER_ACCESS_TOKEN
 
     def refresh_access_token(self):
         """Refreshes the access token using the stored refresh token."""

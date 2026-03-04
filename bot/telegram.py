@@ -1,9 +1,7 @@
-import requests
-import os
+from src.utils.settings import telegram_settings
 
-
-TELEGRAM_TOKEN   = os.getenv("TELEGRAM_TOKEN")
-TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
+TELEGRAM_TOKEN   = telegram_settings.TELEGRAM_TOKEN
+TELEGRAM_CHAT_ID = telegram_settings.TELEGRAM_CHAT_ID
 
 
 def send_msg(message: str) -> None:
