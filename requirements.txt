@@ -3,3 +3,9 @@ pandas
 pandas_ta
 requests
 python-dotenv
+pydantic
+pydantic-settings
+twisted
+automat
+service-identity
+ctrader-open-api

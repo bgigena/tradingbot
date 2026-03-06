@@ -7,6 +7,6 @@ services:
     restart: unless-stopped
     env_file:
       - .env
-    # Montamos el .env para que el bot pueda guardar el refresh_token
+    # Montamos todo el directorio para que el bot pueda guardar el refresh_token y detecte los cambios visuales de codigo
     volumes:
-      - ./.env:/app/.env
+      - ./:/app

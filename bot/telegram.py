@@ -1,3 +1,4 @@
+import requests
 from src.utils.settings import telegram_settings
 
 TELEGRAM_TOKEN   = telegram_settings.TELEGRAM_TOKEN
